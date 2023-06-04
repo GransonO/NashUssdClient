@@ -1,38 +1,65 @@
 package com.epitome.nashussd
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import com.epitome.nashussd.data.Ussd
-import com.tester.ussdclient.data.UssdExecutor
-import com.epitome.nashussd.utils.AccessibilityHelper
+import android.widget.Toast
+import com.epitome.nashussd.data.USSDPayload
+import com.epitome.nashussd.exceptions.SHARED_PREFERENCE_NANE
+import com.epitome.nashussd.interfaces.USSDExecutor
+import com.epitome.nashussd.utils.AccessibilityHelper.isAccessibilityServiceEnabled
+import com.epitome.nashussd.utils.AccessibilityHelper.isPhonePermissionGranted
+import com.epitome.nashussd.utils.AccessibilityHelper.nashRequestPlaced
 
-
-class UssdRunner(context: Context) : UssdExecutor {
+class UssdRunner(context: Context) : USSDExecutor {
     private val context: Context
-    private var pendingUssd: Ussd? = null
-    val TAG = "UssdExecutor"
+    private val TAG = "USSDExecutor"
+
+    private var prefs = context.getSharedPreferences(SHARED_PREFERENCE_NANE, Context.MODE_PRIVATE)
 
     init {
         this.context = context
     }
 
-    @SuppressLint("MissingPermission")
-    override fun run(ussd: Ussd?) {
-        if (!AccessibilityHelper.isPermissionGranted(context)) {
-            return
+    override fun execute(ussd: USSDPayload) {
+        when {
+            !isPhonePermissionGranted(context) -> {
+                Toast.makeText(context, "Please Allow the phone permission to run this request", Toast.LENGTH_LONG).show()
+                return
+            }
+            !isAccessibilityServiceEnabled(context) -> {
+                Toast.makeText(context, "Please Enable Nash service to run the this request", Toast.LENGTH_LONG).show()
+                return
+            }
+            else -> {
+                nashRequestPlaced = true // Initiated on start of request
+
+                val editor = prefs.edit()
+                editor.putInt("StepCount", 0) // reset the count
+                editor.apply()
+
+                Log.e(TAG, "Starting step count: ------> ${prefs.getInt("StepCount", 0)}")
+                val ussdCode: String = ussd.code.toString().replace("#", ENCODED_HASH)
+                val uri: Uri = Uri.parse("tel:$ussdCode")
+                val intent = Intent(Intent.ACTION_CALL, uri)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
         }
-        val ussdCode: String = ussd?.code.toString().replace("#", ENCODED_HASH)
-        val uri: Uri = Uri.parse("tel:$ussdCode")
-        val intent = Intent(Intent.ACTION_CALL, uri)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        context.startActivity(intent)
     }
 
-    override fun setResponse(result: String?) {
-        Log.e(TAG, "setResponse: -------------------------------> $result")
+    override fun onResponse(result: String?) {
+        Log.e(TAG, "Response: ------> $result")
+    }
+
+    override fun onComplete(result: String?) {
+        Log.e(TAG, "onComplete nashRequestPlaced: ------> $nashRequestPlaced")
+        Log.e(TAG, "onComplete result: ------> $result")
+    }
+
+    override fun onError(result: String?) {
+        Log.e(TAG, "Error: ------> $result")
     }
 
     companion object {

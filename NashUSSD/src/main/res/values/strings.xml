@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">USSD Client</string>
+    <string name="accessibility_service_label">NashClient Service</string>
+    <string name="phone_image">Phone image</string>
+    <string name="nash_service_rationale">To facilitate effective communication for the respective services offered in the Nash platform, please click on the Installed apps and turn on NashClient Service</string>
+    <string name="allow_nash_service">Allow NashClient Service</string>
+    <string name="allow_nash_phone">Allow phone permission</string>
+    <string name="enable_service">Enable Service</string>
+    <string name="enable_phone">Allow Phone</string>
+</resources>
