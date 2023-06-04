@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.epitome.nashussd.data.USSDPayload
 import com.epitome.nashussd.exceptions.SHARED_PREFERENCE_NANE
 import com.epitome.nashussd.interfaces.USSDExecutor
+import com.epitome.nashussd.interfaces.UssdCallback
 import com.epitome.nashussd.utils.AccessibilityHelper.isAccessibilityServiceEnabled
 import com.epitome.nashussd.utils.AccessibilityHelper.isPhonePermissionGranted
 import com.epitome.nashussd.utils.AccessibilityHelper.nashRequestPlaced
@@ -17,12 +18,14 @@ class UssdRunner(context: Context) : USSDExecutor {
     private val TAG = "USSDExecutor"
 
     private var prefs = context.getSharedPreferences(SHARED_PREFERENCE_NANE, Context.MODE_PRIVATE)
+    private lateinit var ussdCallback: UssdCallback
 
     init {
         this.context = context
     }
 
-    override fun execute(ussd: USSDPayload) {
+    override fun execute(ussd: USSDPayload, callback: UssdCallback) {
+        ussdCallback = callback
         when {
             !isPhonePermissionGranted(context) -> {
                 Toast.makeText(context, "Please Allow the phone permission to run this request", Toast.LENGTH_LONG).show()
@@ -54,12 +57,11 @@ class UssdRunner(context: Context) : USSDExecutor {
     }
 
     override fun onComplete(result: String?) {
-        Log.e(TAG, "onComplete nashRequestPlaced: ------> $nashRequestPlaced")
-        Log.e(TAG, "onComplete result: ------> $result")
+        ussdCallback.onSuccess(result.toString())
     }
 
     override fun onError(result: String?) {
-        Log.e(TAG, "Error: ------> $result")
+        ussdCallback.onSuccess(result.toString())
     }
 
     companion object {

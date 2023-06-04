@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import com.epitome.nashussd.UssdRunner
 import com.epitome.nashussd.data.USSDPayload
 import com.epitome.nashussd.interfaces.USSDExecutor
+import com.epitome.nashussd.interfaces.UssdCallback
 import com.epitome.nashussd.services.UssdService.Companion.ussdPromptFlow
 import com.epitome.nashussd.ui.PermissionsActivity
 import com.epitome.nashussd.utils.enums.PermissionEnums
@@ -76,9 +77,9 @@ object AccessibilityHelper {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun runUssdUtil(ussd: USSDPayload){
+    fun runUssdUtil(ussd: USSDPayload, ussdCallback: UssdCallback){
         ussdPromptFlow = ussd.promptFlow.split("*")
-        ussdExecutor?.execute(ussd)
+        ussdExecutor?.execute(ussd, ussdCallback)
 
     }
     fun requestPhonePermissionsUtil(context: Context){
