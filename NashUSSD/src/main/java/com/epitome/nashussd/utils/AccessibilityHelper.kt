@@ -13,10 +13,11 @@ import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import com.epitome.nashussd.UssdRunner
+import com.epitome.nashussd.services.UssdRunner
 import com.epitome.nashussd.data.USSDPayload
 import com.epitome.nashussd.interfaces.USSDExecutor
 import com.epitome.nashussd.interfaces.UssdCallback
+import com.epitome.nashussd.services.SimCardUtil
 import com.epitome.nashussd.services.UssdService.Companion.ussdPromptFlow
 import com.epitome.nashussd.ui.PermissionsActivity
 import com.epitome.nashussd.utils.enums.PermissionEnums
@@ -25,14 +26,15 @@ import com.epitome.nashussd.utils.enums.PermissionEnums
 object AccessibilityHelper {
 
     private const val CALL_USSD_PERMISSION = 275
+    private const val PHONE_STATE_PERMISSION = 725
     var ussdExecutor: USSDExecutor? = null
     var nashRequestPlaced: Boolean = false
-
 
     fun initNashClient(activity: Activity){
         // isAppForeground()
         ussdExecutor = UssdRunner(activity.applicationContext)
     }
+
     fun isAppForeground() : Boolean {
         val appProcessInfo =  ActivityManager.RunningAppProcessInfo()
         Log.d("Testing Process", "------------------> ${appProcessInfo.processName}")
@@ -48,6 +50,12 @@ object AccessibilityHelper {
             Manifest.permission.CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED
     }
+    fun isPhoneStatePermissionGranted(context: Context): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_PHONE_STATE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
         var accessibilityServiceEnabled = false
@@ -61,11 +69,18 @@ object AccessibilityHelper {
         return accessibilityServiceEnabled
     }
 
-    fun requestPermissions(activity: Activity) {
+    fun requestPhonePermissions(activity: Activity) {
         ActivityCompat.requestPermissions(
             activity,
             arrayOf(Manifest.permission.CALL_PHONE),
             CALL_USSD_PERMISSION
+        )
+    }
+    fun requestPhoneStatePermissions(activity: Activity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.READ_PHONE_STATE),
+            PHONE_STATE_PERMISSION
         )
     }
 
@@ -87,10 +102,18 @@ object AccessibilityHelper {
         intent.putExtra("permission", PermissionEnums.PHONE.toString())
         context.startActivity(intent)
     }
+    fun requestPhoneStatePermissionsUtil(context: Context){
+        val intent = Intent(context, PermissionsActivity::class.java)
+        intent.putExtra("permission", PermissionEnums.STATE.toString())
+        context.startActivity(intent)
+    }
 
     fun requestAccessibilityServiceUtil(context: Context){
         val intent = Intent(context, PermissionsActivity::class.java)
         intent.putExtra("permission", PermissionEnums.SERVICE.toString())
         context.startActivity(intent)
     }
+
+    fun nashSimProviders(context: Context): List<String> = SimCardUtil().getSimCardCouriers(context);
+
 }

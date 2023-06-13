@@ -1,4 +1,4 @@
-package com.epitome.nashussd
+package com.epitome.nashussd.services
 
 import android.content.Context
 import android.content.Intent

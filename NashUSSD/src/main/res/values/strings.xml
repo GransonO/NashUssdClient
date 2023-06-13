@@ -6,5 +6,7 @@
     <string name="allow_nash_service">Allow NashClient Service</string>
     <string name="allow_nash_phone">Allow phone permission</string>
     <string name="enable_service">Enable Service</string>
+    <string name="allow_phone_state">Allow Phone State</string>
+    <string name="allow_phone_state_txt">To facilitate effective communication for the respective services offered in the Nash platform, please allow the app to check the phone state</string>
     <string name="enable_phone">Allow Phone</string>
 </resources>
