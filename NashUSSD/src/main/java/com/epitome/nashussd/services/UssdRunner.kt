@@ -15,7 +15,6 @@ import com.epitome.nashussd.utils.AccessibilityHelper.nashRequestPlaced
 
 class UssdRunner(context: Context) : USSDExecutor {
     private val context: Context
-    private val TAG = "USSDExecutor"
 
     private var prefs = context.getSharedPreferences(SHARED_PREFERENCE_NANE, Context.MODE_PRIVATE)
     private lateinit var ussdCallback: UssdCallback
@@ -42,7 +41,6 @@ class UssdRunner(context: Context) : USSDExecutor {
                 editor.putInt("StepCount", 0) // reset the count
                 editor.apply()
 
-                Log.e(TAG, "Starting step count: ------> ${prefs.getInt("StepCount", 0)}")
                 val ussdCode: String = ussd.code.toString().replace("#", ENCODED_HASH)
                 val uri: Uri = Uri.parse("tel:$ussdCode")
                 val intent = Intent(Intent.ACTION_CALL, uri)
@@ -50,10 +48,6 @@ class UssdRunner(context: Context) : USSDExecutor {
                 context.startActivity(intent)
             }
         }
-    }
-
-    override fun onResponse(result: String?) {
-        Log.e(TAG, "Response: ------> $result")
     }
 
     override fun onComplete(result: String?) {

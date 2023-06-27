@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.getSystemService
 
-
 class SimCardUtil {
 
     private fun isPhoneStatePermissionGranted(context: Context): Boolean {

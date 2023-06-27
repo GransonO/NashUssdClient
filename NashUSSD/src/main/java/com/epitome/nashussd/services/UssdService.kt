@@ -2,10 +2,12 @@ package com.epitome.nashussd.services
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.annotation.RequiresApi
 import com.epitome.nashussd.exceptions.INTERRUPTED_EXCEPTION
 import com.epitome.nashussd.services.UssdService.Companion.ussdPromptFlow
 import com.epitome.nashussd.utils.AccessibilityHelper.ussdExecutor
@@ -24,8 +26,7 @@ class UssdService: AccessibilityService() {
         var currentStep = 0
     }
 
-    private val TAG = "USSDService"
-
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
         val prefs = getSharedPreferences(SHARED_PREFERENCE_NANE, Context.MODE_PRIVATE)
@@ -35,22 +36,18 @@ class UssdService: AccessibilityService() {
 
         try {
             if(nashRequestPlaced){
-                // Request initiated from the app
                 val ussdResponse = event.text
                 currentStep = prefs.getInt("StepCount", 0)
-                ussdExecutor?.onResponse(ussdResponse.toString())
 
                 if(rootNode?.actionList != null){
                     val list: List<AccessibilityNodeInfo> = rootNode.findAccessibilityNodeInfosByText("SEND")
                     for (node in list) {
-                        Log.e(TAG, "onAccessibilityEvent: ------------------ Current step $currentStep")
-
                         val nodeInput: AccessibilityNodeInfo = rootNode.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
                         val bundle = Bundle()
                         if(ussdPromptFlow[currentStep] == "PIN"){
-                            // input the pin
-                            // bundle.putCharSequence( AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, ussdPromptFlow[currentStep])
-                            // nodeInput.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, bundle)
+                            // Do nothing.
+                            // Display the prompt for user input
+
                         }else{
                             bundle.putCharSequence( AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, ussdPromptFlow[currentStep])
                             nodeInput.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, bundle)
@@ -76,7 +73,6 @@ class UssdService: AccessibilityService() {
                     editor.apply()
 
                     if(count + 1 > ussdPromptFlow.size){
-                        // Completed request
                         nashRequestPlaced = false
                         ussdExecutor?.onComplete("Completed $ussdResponse")
                         return
@@ -93,7 +89,6 @@ class UssdService: AccessibilityService() {
                     return
                 }
             }
-            // throw NashClientException("Flow out of bounds exception")
         }
     }
 

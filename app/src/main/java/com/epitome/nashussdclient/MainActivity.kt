@@ -48,35 +48,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
-
-//        with(binding){
-//            val ussdText = editTextTextUssd.text.toString()
-//
-//            if(ussdText.isEmpty()){
-//                Toast.makeText(this@MainActivity, "Please enter the USSD string to start", Toast.LENGTH_LONG).show()
-//            }else{
-//                val codeCallCode = ussdText.split("#")[0] // *544
-//                val ussdPrompts = ussdText.split("#")[1]  //2*6*1*1
-//
-//                runUssdUtil(
-//                    USSDPayload(
-//                        id = "1",
-//                        code = "*$codeCallCode#",
-//                        promptFlow = ussdPrompts,
-//                        hasPin = false
-//                    ),
-//                    object : UssdCallback{
-//                        override fun onSuccess(value: String) {
-//                            binding.ussdtext.text = value
-//                        }
-//
-//                        override fun onFailure(value: String) {
-//                            binding.ussdtext.text = value
-//                        }
-//                    }
-//                )
-//            }
-//        }
     }
     fun requestPhonePermissions(view: View){
         requestPhonePermissionsUtil(this@MainActivity)
